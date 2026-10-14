@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="es"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>¿Desde dónde lo estás mirando?</title>
+<style>
+:root{box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);--bg:#2b0f0a;--card:#43180f;--card2:#5e2614;--tx:#fff4e6;--mu:#f5c9a0;--a:#fb923c;--b:#f59e0b;--ok:#a3e635;--no:#fb7185;--pk:#f43f5e}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*{box-sizing:border-box}
+body{margin:0;font-family:'Segoe UI',system-ui,-apple-system,Roboto,sans-serif;color:var(--tx);background:radial-gradient(circle at 15% 10%,#3b2a9c 0,transparent 45%),radial-gradient(circle at 90% 90%,#0e7490 0,transparent 40%),var(--bg);min-height:100vh}
+.wrap{max-width:860px;margin:0 auto;padding:18px}
+.screen{display:none;animation:in .4s ease}.screen.on{display:block}
+@keyframes in{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+.card{background:var(--card);border-radius:20px;padding:22px;box-shadow:0 8px 30px #0006;border:1px solid #ffffff14}
+h1{font-size:clamp(1.8rem,6vw,2.7rem);margin:.2em 0;line-height:1.15;background:linear-gradient(90deg,var(--a),var(--b),var(--pk));-webkit-background-clip:text;background-clip:text;color:transparent}
+h2{margin:.2em 0}p.sub{color:var(--mu);font-size:1.1rem}
+.rules{background:var(--card2);border-left:5px solid var(--a);padding:14px 16px;border-radius:12px;color:var(--tx);line-height:1.6;margin:16px 0}
+input{width:100%;font-size:1.2rem;padding:14px 16px;border-radius:14px;border:2px solid #ffffff30;background:#2a0d08;color:var(--tx);outline:none}
+input:focus{border-color:var(--a)}
+.err{color:var(--no);min-height:1.4em;font-weight:600;margin:6px 0}
+.btn{display:block;width:100%;font-size:1.25rem;font-weight:800;padding:16px;border:0;border-radius:16px;cursor:pointer;color:#2b0f0a;background:linear-gradient(90deg,var(--a),var(--b));transition:transform .15s,filter .15s;margin-top:10px}
+.btn:hover:not(:disabled){transform:translateY(-2px);filter:brightness(1.1)}
+.btn:disabled{opacity:.4;cursor:not-allowed}
+.btn.alt{background:var(--card2);color:var(--tx);border:2px solid #ffffff30}
+.row{display:flex;gap:12px;flex-wrap:wrap}.row>*{flex:1 1 200px}
+.top{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;font-weight:700}
+.pill{background:var(--card2);padding:8px 14px;border-radius:99px}
+.score.bump{animation:bump .5s}
+@keyframes bump{50%{transform:scale(1.35);color:var(--ok)}}
+.bar{height:12px;background:#2a0d08;border-radius:99px;margin:12px 0 4px;overflow:hidden}
+.bar i{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--a),var(--pk));transition:width .5s}
+.lvl{color:var(--a);font-size:.9rem;font-weight:700;letter-spacing:.04em;text-transform:uppercase}
+.views{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin:14px 0}
+@media(max-width:600px){.views{grid-template-columns:1fr}}
+.box{background:#2a0d08;border-radius:16px;padding:12px;text-align:center;position:relative}
+.box small{display:block;color:var(--mu);margin-bottom:6px}
+.box svg{max-width:100%;height:190px}
+.chips{display:flex;gap:6px;justify-content:center;flex-wrap:wrap;margin-top:6px;font-size:.8rem}
+.chips span{padding:3px 9px;border-radius:99px;color:#2b0f0a;font-weight:700}
+.opts{display:grid;gap:10px;margin:10px 0}
+.opt{display:flex;align-items:center;gap:12px;text-align:left;font-size:1.1rem;padding:14px 16px;border-radius:14px;border:2px solid #ffffff22;background:var(--card2);color:var(--tx);cursor:pointer;transition:.15s}
+.opt:hover:not(:disabled){border-color:var(--a)}
+.opt b{background:#2a0d08;border-radius:10px;width:34px;height:34px;display:grid;place-items:center;flex:none}
+.opt.sel{border-color:var(--a);background:#9a3412;transform:scale(1.02)}
+.opt.sel b{background:var(--a);color:#2b0f0a}
+.opt.good{border-color:var(--ok);background:#365314;animation:pop .5s}
+.opt.bad{border-color:var(--no);background:#7f1d1d;animation:shake .45s}
+@keyframes pop{50%{transform:scale(1.05)}}
+@keyframes shake{25%{transform:translateX(-8px)}75%{transform:translateX(8px)}}
+.fb{display:none;border-radius:16px;padding:16px;margin-top:10px;line-height:1.55;animation:in .4s}
+.fb.ok{background:#1a2e05;border:2px solid var(--ok)}.fb.no{background:#431407;border:2px solid var(--no)}
+.fb .hd{font-weight:800;font-size:1.15rem;margin-bottom:6px}
+.arrow{position:absolute;top:8px;right:10px;background:var(--pk);color:#2b0f0a;font-weight:800;border-radius:99px;padding:4px 12px;font-size:.85rem;animation:float 1.2s infinite ease-in-out}
+@keyframes float{50%{transform:translateY(-5px)}}
+.big{font-size:2.6rem;font-weight:900;color:var(--a)}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:14px 0;text-align:center}
+.stats div{background:var(--card2);border-radius:14px;padding:12px}.stats b{display:block;font-size:1.8rem}
+.rev{padding:12px;border-radius:12px;background:var(--card2);margin:8px 0;line-height:1.5;border-left:5px solid var(--ok)}.rev.x{border-color:var(--no)}
+.recap{display:grid;grid-template-columns:1fr 1fr;gap:10px;align-items:center}
+.recap div.t{background:var(--card2);padding:12px;border-radius:12px;font-weight:600}
+@media(max-width:600px){.recap{grid-template-columns:1fr}}
+.leg{margin:0 0 8px;font-size:.9rem}
+body{background:radial-gradient(circle at 10% 5%,#f43f5e66 0,transparent 40%),radial-gradient(circle at 95% 20%,#f59e0b66 0,transparent 40%),radial-gradient(circle at 50% 100%,#fb923c55 0,transparent 45%),var(--bg)}
+.btn{background:linear-gradient(90deg,#fbbf24,#fb923c,#f43f5e)}
+.opt{border-left:10px solid var(--oc);font-weight:700}.opt b{background:var(--oc);color:#2b0f0a}
+.opt:nth-child(1){--oc:#f43f5e}.opt:nth-child(2){--oc:#fb923c}.opt:nth-child(3){--oc:#facc15}.opt:nth-child(4){--oc:#d97706}
+.vgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:12px;margin:14px 0}
+.vc{background:var(--card2);border-radius:16px;padding:12px;border-top:7px solid var(--c);text-align:center;line-height:1.4}
+.vc .em{font-size:2rem}.vc b{display:block;color:var(--c);font-size:1.15rem}.vc span{display:block;color:var(--tx);margin:4px 0 6px;font-size:.95rem}
+.vc svg{height:110px}#recapsvg svg{height:150px}
+.views.one{grid-template-columns:1fr}.views.one .box svg{height:auto;width:100%;max-height:300px;border-radius:12px}.vc svg{height:130px!important}.rules b{color:var(--a)}
+#snd{position:fixed;top:calc(env(safe-area-inset-top,0px) + 8px);right:10px;z-index:20;display:flex;gap:6px}
+#snd button{width:42px;height:42px;border-radius:50%;border:2px solid #ffffff40;background:var(--card2);font-size:1.2rem;cursor:pointer;color:var(--tx)}
+#snd button.off{opacity:.45;filter:grayscale(1)}
+#hero svg{height:170px;filter:drop-shadow(0 8px 14px #0007)}#hero{animation:float 3s infinite ease-in-out}
+.lb{width:100%;border-collapse:collapse}.lb th,.lb td{padding:10px;text-align:left}.lb th{color:var(--mu);font-size:.85rem}.lb tr:nth-child(even) td{background:#ffffff0d}.lb tr.me td{background:#f59e0b44;font-weight:800}
+</style></head><body><div id="snd"><button id="bm" title="Música">🎵</button><button id="bs" title="Sonidos">🔊</button></div>
+<div class="wrap">
+
+<section class="screen on card" id="s-home" style="text-align:center">
+  <div id="hero"></div>
+  <h1>¿Desde dónde lo estás mirando? 👀</h1>
+  <p class="sub">Pon a prueba tu visión espacial y aprende Dibujo Técnico jugando.</p>
+  <div class="vgrid" style="text-align:left"><div class="vc" style="--c:#fbbf24"><div class="em">📐</div><b>Nivel 1 · Vistas</b><span>15 retos: frontal, superior, laterales, posterior e inferior.</span></div><div class="vc" style="--c:#f43f5e"><div class="em">🛣️</div><b>Nivel 2 · Punto de fuga</b><span>7 retos con imágenes reales: 1, 2 y 3 puntos de fuga.</span></div><div class="vc" style="--c:#fb923c"><div class="em">🏆</div><b>Suma puntos</b><span>10 puntos por acierto, con explicación en cada respuesta.</span></div></div>
+  <button class="btn" id="play">▶ Jugar</button>
+  <button class="btn alt" id="lbh">🏆 Tabla de puntuación</button>
+  <p class="sub" style="font-size:.9rem">🎧 Activa el sonido para la mejor experiencia. Puedes silenciar con los botones de arriba.</p>
+</section>
+<section class="screen card" id="s-lb"><h2>Tabla de puntuación 🏆</h2><p class="sub" id="lbsrc"></p><div style="overflow-x:auto"><table class="lb" id="lbt"></table></div><button class="btn" id="lbback">Volver</button></section>
+<section class="screen card" id="s-start">
+  <h1>¿Desde dónde lo estás mirando? 👀</h1>
+  <p class="sub">Pon a prueba tu visión espacial y descubre desde qué punto de vista estás observando cada objeto.</p>
+  <div class="rules">📐 Observa cada objeto y selecciona desde qué punto de vista crees que lo estás viendo.<br>⭐ Cada respuesta correcta suma puntos.<br>💡 No te preocupes si te equivocas: el juego te explicará la respuesta.</div>
+  <input id="name" placeholder="Escribe tu nombre" maxlength="40" autocomplete="off">
+  <div class="err" id="nerr"></div>
+  <button class="btn" id="go">Comenzar juego</button>
+</section>
+
+<section class="screen card" id="s-recap">
+  <h2>Conoce las 6 vistas 🎨</h2>
+  <p class="sub">Imagina que das la vuelta alrededor de este objeto. ¡Cada lugar te muestra algo distinto!</p>
+  <div id="recapsvg" style="text-align:center"></div>
+  <div class="chips" style="margin-bottom:6px"><span style="background:#f97316">Naranja = frente</span><span style="background:#b91c1c;color:#fff">Rojo = lado derecho</span><span style="background:#fde047">Amarillo = arriba</span></div>
+  <div class="vgrid" id="vgrid"></div>
+  <button class="btn" id="go2">¡Entendido, vamos a jugar!</button>
+</section>
+
+<section class="screen" id="s-game">
+  <div class="card">
+    <div class="top"><span class="pill" id="qn"></span><span class="pill">Puntaje: <span class="score" id="sc">0</span></span></div>
+    <div class="bar"><i id="pb"></i></div>
+    <div class="lvl" id="lv"></div>
+    <h2 id="qt">¿Desde qué punto de vista estamos viendo este objeto?</h2>
+    <div class="views">
+      <div class="box"><small>Mira el objeto 🧊</small><div id="iso"></div>
+        <div class="chips"><span style="background:#f97316">Naranja = frente</span><span style="background:#b91c1c;color:#fff">Rojo = lado derecho</span><span style="background:#fde047">Amarillo = arriba</span></div></div>
+      <div class="box"><small>Esto es lo que ves 👁️</small><div id="v2d"></div><div class="arrow" id="arw" style="display:none"></div></div>
+    </div>
+    <div class="opts" id="opts"></div>
+    <button class="btn" id="chk" disabled>Comprobar respuesta</button>
+    <div class="fb" id="fb"></div>
+    <button class="btn alt" id="nx" style="display:none">Siguiente</button>
+  </div>
+</section>
+
+<section class="screen card" id="s-end">
+  <h1>¡Juego terminado! 🎉</h1>
+  <p><b>Jugador:</b> <span id="pn"></span></p>
+  <p style="margin:0">Puntaje obtenido:</p><div class="big" id="fs"></div>
+  <div class="stats"><div><b id="cc" style="color:var(--ok)"></b>Correctas</div><div><b id="ci" style="color:var(--no)"></b>Incorrectas</div><div><b id="cp"></b>Porcentaje</div></div>
+  <div class="rules" id="msg" style="font-size:1.15rem"></div>
+  <div class="row"><button class="btn" id="again">Jugar nuevamente</button><button class="btn alt" id="rv">Revisar respuestas</button><button class="btn alt" id="lbe">🏆 Tabla</button><button class="btn alt" id="hm">🏠 Inicio</button></div>
+</section>
+
+<section class="screen card" id="s-vp"><h1>¡Nivel 2! El punto de fuga 🛣️</h1>
+<p class="sub">Ya dominas las vistas. Ahora veamos cómo el dibujo representa la profundidad.</p>
+<div class="rules"><b>¿Qué es un punto de fuga?</b><br>Es el punto del horizonte donde parece que se juntan las líneas paralelas que se alejan de nosotros. Piensa en unas vías de tren: son paralelas, pero a lo lejos parecen unirse.<br><br>🔎 <b>Línea de horizonte:</b> es la altura de tus ojos. Los puntos de fuga laterales siempre están sobre ella.</div>
+<div class="vgrid" id="vpg"></div><button class="btn" id="goVP">¡Vamos al Nivel 2!</button></section>
+<section class="screen card" id="s-rev">
+  <h2>Revisión de respuestas 🔍</h2><div id="revl"></div>
+  <button class="btn" id="back">Volver a los resultados</button>
+</section>
+</div>
+<script>
+const $=s=>document.querySelector(s);
+const V={
+front:{n:'Vista frontal',a:'➡️ Desde adelante',d:'Vista frontal o alzado: representa el objeto visto de frente y normalmente muestra su forma principal.',f:'estamos mirando el objeto de frente'},
+back:{n:'Vista posterior',a:'⬅️ Desde atrás',d:'Vista posterior: es lo que verías si te pasaras a la parte de atrás del objeto. Es como el frente, pero invertido de izquierda a derecha.',f:'estamos mirando el objeto desde atrás'},
+right:{n:'Vista lateral derecha',a:'⬅️ Desde el lado derecho',d:'Vista lateral derecha: muestra el objeto observado desde su costado derecho. El frente del objeto queda a tu izquierda.',f:'estamos mirando el objeto desde su costado derecho'},
+left:{n:'Vista lateral izquierda',a:'➡️ Desde el lado izquierdo',d:'Vista lateral izquierda: muestra el objeto observado desde su costado izquierdo. El frente del objeto queda a tu derecha.',f:'estamos mirando el objeto desde su costado izquierdo'},
+top:{n:'Vista superior',a:'⬇️ Desde arriba',d:'Vista superior o planta: es lo que observaríamos si estuviéramos mirando el objeto directamente desde arriba.',f:'estamos mirando el objeto directamente desde arriba'},
+bottom:{n:'Vista inferior',a:'⬆️ Desde abajo',d:'Vista inferior: es lo que verías si el objeto flotara sobre ti y lo miraras desde abajo. El frente queda en la parte de arriba de la imagen.',f:'estamos mirando el objeto desde abajo'}};
+const BOX=[[1,1,1],[1,1,1]],L=[[2,0],[2,0],[2,2]],T=[[1,1,1],[0,1,0],[0,1,0]],S=[[3,3,3],[2,2,2],[1,1,1]],SX=[[1,2,3],[1,2,3],[1,2,3]],ST=[[3,3],[3,3],[1,1]],RT=[[1,1,1],[1,0,1],[1,1,3]],P=[[3,3,3],[1,0,1],[1,0,1]],C=[[0,2,0],[1,1,1],[0,1,0]];
+const Q=[
+{h:BOX,v:'top',o:['front','top','right'],w:'Se ve un rectángulo de 3 × 2 cuadros: es el ancho y la profundidad del objeto. Desde arriba no se nota la altura.'},
+{h:[[3,3,3]],v:'right',o:['right','top','front'],w:'Se ve una barra angosta y alta: 1 cuadro de ancho (la profundidad del objeto) y 3 de alto.'},
+{h:L,v:'top',o:['top','bottom','front'],w:'Se ve la figura en forma de L completa. Solo desde arriba aparecen a la vez el ancho y la profundidad del objeto.'},
+{h:T,v:'bottom',o:['top','bottom','front'],w:'La T aparece al revés (invertida): desde abajo, el frente del objeto queda en la parte de arriba de la imagen.'},
+{h:[[1,1,0],[0,1,1]],v:'top',o:['top','bottom','front'],w:'Se ve la forma de Z en dos filas de cuadros. Desde abajo se vería reflejada, como en un espejo.'},
+{h:S,v:'right',o:['front','back','left','right'],w:'La escalera sube hacia la derecha de la imagen: lo más bajo (la parte delantera) queda a la izquierda.'},
+{h:[[0,0,3],[0,2,3],[1,2,3]],v:'top',o:['top','front','right','left'],w:'Se ve una escuadra triangular, y las zonas más claras (las más altas) quedan en la esquina de arriba a la derecha.'},
+{h:SX,v:'back',o:['front','back','top','right'],w:'La escalera sube hacia la izquierda. Desde el frente subiría hacia la derecha, así que aquí está invertida.'},
+{h:ST,v:'right',o:['right','left','front','top'],w:'Se ve el escalón bajo a la izquierda (es la parte delantera) y el bloque alto a la derecha.'},
+{h:[[1,1,1],[1,2,2],[1,2,3]],v:'left',o:['left','right','top','back'],w:'La escalera sube hacia la derecha: en la vista lateral izquierda, la parte más alta (la delantera) queda a la derecha.'},
+{h:RT,v:'top',o:['top','bottom','front','left'],w:'Se ve el hueco en el centro y la torre más clara en la esquina delantera derecha: lo más alto es lo más cercano a tu ojo.'},
+{h:[[2,0,0],[2,2,0],[2,2,2]],v:'bottom',o:['top','bottom','front'],w:'Se ve un triángulo de cuadros con la parte ancha arriba: al mirar desde abajo, el frente del objeto queda en la parte de arriba de la imagen.'},
+{h:P,v:'front',o:['front','back','left','top'],w:'Se ve un rectángulo completo, pero hay un hueco al centro que deja ver el muro del fondo. Los bloques bajos delanteros se ven más claros (más cercanos).'},
+{h:C,v:'left',o:['left','right','top','back'],w:'La parte alta (la del fondo del objeto) queda a la izquierda de la imagen. Recuerda: en la vista lateral izquierda el frente queda a la derecha.'},
+{h:[[2,0,2],[2,0,2],[2,2,2]],v:'bottom',o:['top','bottom','front'],w:'La U se ve con la base arriba y los brazos hacia abajo: desde abajo, el frente del objeto queda en la parte de arriba de la imagen.'}];
+const IO=[[3,0],[1,1],[1,1]],CL={front:'#f97316',back:'#f59e0b',right:'#dc2626',left:'#facc15',top:'#fb7185',bottom:'#ea580c'},EM={front:'👀',back:'🔙',right:'👉',left:'👈',top:'🦅',bottom:'🐜'},IN={front:'Miras de frente, como cuando saludas a alguien. Es la vista principal (alzado).',back:'Das la vuelta y miras por detrás. Parece el frente, pero al revés.',right:'Te paras a su derecha. El frente del objeto queda a tu izquierda.',left:'Te paras a su izquierda. El frente del objeto queda a tu derecha.',top:'Eres un águila 🦅 mirando desde arriba. También se llama planta.',bottom:'Eres una hormiga 🐜 mirando desde abajo. El frente queda arriba.'};
+Object.assign(V,{vp1:{n:'Perspectiva con 1 punto de fuga',a:'📍 1 punto de fuga',d:'Perspectiva frontal o paralela: miras el objeto de frente y todas las líneas de profundidad van a un solo punto.',f:'las líneas que se alejan de ti se juntan en un solo punto del horizonte'},
+vp2:{n:'Perspectiva con 2 puntos de fuga',a:'📍📍 2 puntos de fuga',d:'Perspectiva oblicua o angular: miras el objeto por una esquina y aparecen dos puntos en el horizonte.',f:'cada fachada se va hacia un punto distinto del horizonte, uno a cada lado'},
+vp3:{n:'Perspectiva con 3 puntos de fuga',a:'📍📍📍 3 puntos de fuga',d:'Perspectiva de tres puntos: además de los dos laterales, las verticales también se juntan (mirando desde abajo o desde arriba).',f:'además de los dos puntos laterales, las líneas verticales se juntan en un tercer punto'}});
+const N1=Q.length,V3=['vp1','vp2','vp3'];
+Q.push({s:'r1',v:'vp1',o:V3,w:'Los bordes de la carretera se juntan en un solo punto del horizonte. Ese es el único punto de fuga.'},
+{s:'c1',v:'vp2',o:V3,w:'Ves el edificio por su esquina: las líneas de cada fachada se van a un punto distinto del horizonte (izquierda y derecha). Las verticales siguen derechas.'},
+{s:'t1',v:'vp3',o:V3,w:'Además de los dos puntos laterales, las verticales se inclinan y se juntan hacia arriba: un tercer punto. Pasa al mirar un edificio muy alto desde abajo.'},
+{s:'k1',v:'vp1',o:V3,w:'Paredes, piso y techo se juntan hacia el fondo en un solo punto, justo al centro del pasillo.'},
+{s:'bx',v:'vp2',o:V3,w:'Ves el contenedor por una esquina: sus bordes horizontales se van hacia dos puntos del horizonte, uno a cada lado. Las verticales no se inclinan.'},
+{s:'dn',v:'vp3',o:V3,w:'Miras hacia abajo desde lo alto: las verticales se juntan hacia el suelo. Junto a los dos puntos laterales suman tres.'},
+{s:'rl',v:'vp1',o:V3,w:'Los dos rieles son paralelos, pero parecen juntarse en un solo punto del horizonte. Los durmientes se ven cada vez más juntos.'});
+const U=()=>Math.random().toString(36).slice(2,7),lY=(x0,y0,v,x)=>y0+(v[1]-y0)*(x-x0)/(v[0]-x0),Lp=(P,R,t)=>[P[0]+(R[0]-P[0])*t,P[1]+(R[1]-P[1])*t];
+const gr=(id,a,b)=>`<linearGradient id="${id}" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="${a}"/><stop offset="1" stop-color="${b}"/></linearGradient>`;
+const wrap=o=>`<svg viewBox="0 0 480 300" xmlns="http://www.w3.org/2000/svg">${o}<defs><radialGradient id="vg"><stop offset=".55" stop-color="#000" stop-opacity="0"/><stop offset="1" stop-color="#000" stop-opacity=".5"/></radialGradient></defs><rect width="480" height="300" fill="url(#vg)"/></svg>`;
+function face(A,B,C,D,c,r,fill,W){let o=`<polygon points="${[A,B,C,D]}" fill="${fill}"/>`;const pt=(u,v)=>Lp(Lp(A,B,u),Lp(D,C,u),v);
+ for(let i=0;i<c;i++)for(let j=0;j<r;j++)o+=`<polygon points="${[pt((i+.2)/c,(j+.2)/r),pt((i+.8)/c,(j+.2)/r),pt((i+.8)/c,(j+.75)/r),pt((i+.2)/c,(j+.75)/r)]}" fill="${W((i*7+j*5+i*j)%6)}"/>`;return o}
+function bg(p,hy,sx){const i=U();return{i,o:`<defs>${gr(i+'s',p.s[0],p.s[1])}${gr(i+'g',p.g[0],p.g[1])}<radialGradient id="${i}o"><stop offset="0" stop-color="#fff3c4"/><stop offset=".35" stop-color="${p.sun}" stop-opacity=".7"/><stop offset="1" stop-color="${p.sun}" stop-opacity="0"/></radialGradient></defs><rect width="480" height="300" fill="url(#${i}s)"/><circle cx="${sx}" cy="${hy-5}" r="110" fill="url(#${i}o)"/>`}}
+const road=p=>{const hy=150,vx=p.vx,b=bg(p,hy,vx),F=[.05,.09,.14,.21,.31,.46,.68,1],P=(f,x)=>[vx+(240+x-vx)*f,hy+150*f];
+ let o=b.o+`<path d="M0 ${hy}L45 ${hy-28}L110 ${hy-8}L190 ${hy-42}L270 ${hy-10}L350 ${hy-36}L420 ${hy-6}L480 ${hy-24}V${hy}Z" fill="${p.m}"/><rect y="${hy}" width="480" height="150" fill="url(#${b.i}g)"/><polygon points="${vx-2},${hy} ${vx+2},${hy} 560,300 -80,300" fill="${p.r}"/><path d="M${vx} ${hy}L-60 300M${vx} ${hy}L540 300" stroke="${p.l}" stroke-width="2" opacity=".55"/>`;
+ for(let k=0;k<7;k++){const f1=F[k],f2=f1+(F[k+1]-f1)*.5;o+=`<polygon points="${[P(f1,-6),P(f1,6),P(f2,6),P(f2,-6)]}" fill="${p.l}"/>`;
+  for(const x of[-360,360]){const q=P(F[k],x),h=95*F[k];o+=`<line x1="${q[0]}" y1="${q[1]}" x2="${q[0]}" y2="${q[1]-h}" stroke="#1a0d08" stroke-width="${1+3*F[k]}"/><circle cx="${q[0]}" cy="${q[1]-h}" r="${1.5+4*F[k]}" fill="${p.sun}"/>`}}
+ return wrap(o)};
+const corr=p=>{const vx=p.vx||240,hy=150,x0=vx-34,x1=vx+34,y0=hy-34,y1=hy+30,i=U(),Rg=t=>[x0*t,y0*t,480+(x1-480)*t,300+(y1-300)*t];
+ let o=`<defs>${gr(i+'f',...p.f)}${gr(i+'c',...p.c)}<radialGradient id="${i}e"><stop offset="0" stop-color="#fff7e0"/><stop offset="1" stop-color="${p.w}"/></radialGradient></defs><polygon points="0,0 480,0 ${x1},${y0} ${x0},${y0}" fill="url(#${i}c)"/><polygon points="0,300 480,300 ${x1},${y1} ${x0},${y1}" fill="url(#${i}f)"/><polygon points="0,0 ${x0},${y0} ${x0},${y1} 0,300" fill="${p.w}"/><polygon points="480,0 ${x1},${y0} ${x1},${y1} 480,300" fill="${p.w2}"/><rect x="${x0}" y="${y0}" width="68" height="${y1-y0}" fill="url(#${i}e)"/>`;
+ for(const t of[.25,.5,.68,.8,.88]){const[a,b,c,d]=Rg(t);o+=`<polygon points="${a},${b} ${c},${b} ${c},${d} ${a},${d}" fill="none" stroke="${p.s2}" stroke-width="${1+3*(1-t)}" opacity=".7"/>`}
+ for(const t of[.2,.4,.58,.72,.83,.9]){const[a,b,c]=Rg(t),w=60*(1-t)+4;o+=`<rect x="${(a+c)/2-w/2}" y="${b+1}" width="${w}" height="${4*(1-t)+1}" fill="#fff0b8"/>`}
+ const wl=(t,fr)=>{const[a,b,c,d]=Rg(t),h=d-b;return[a,b+h*fr]},wr=(t,fr)=>{const[a,b,c,d]=Rg(t),h=d-b;return[c,b+h*fr]};
+ for(const[t1,t2]of[[.3,.45],[.6,.7]])o+=`<polygon points="${[wl(t1,.22),wl(t2,.22),wl(t2,1),wl(t1,1)]}" fill="${p.d}" stroke="${p.s2}"/>`;
+ for(const[t1,t2]of[[.38,.52],[.74,.82]])o+=`<polygon points="${[wr(t1,.22),wr(t2,.22),wr(t2,1),wr(t1,1)]}" fill="${p.d}" stroke="${p.s2}"/>`;
+ return wrap(o)};
+const corner=p=>{const hy=175,VL=[-520,hy],VR=[1000,hy],b=bg(p,hy,p.sx||90),W=n=>n<p.fr?p.lit:p.dk,cx=p.cx||270,yt=p.yt||25,yb=268,wl=cx-100,wr=cx+(p.wr||160);
+ let o=b.o+`<rect x="0" y="${hy-70}" width="95" height="75" fill="${p.far}"/><rect x="410" y="${hy-90}" width="70" height="95" fill="${p.far}"/><rect y="${hy}" width="480" height="125" fill="url(#${b.i}g)"/>`;
+ const A=[wl,lY(cx,yb,VL,wl)],B=[cx,yb],C=[cx,yt],D=[wl,lY(cx,yt,VL,wl)],A2=[wr,lY(cx,yb,VR,wr)],D2=[wr,lY(cx,yt,VR,wr)];
+ o+=face(A,B,C,D,6,11,p.w1,W)+face(B,A2,D2,C,6,11,p.w2,W)+`<line x1="${cx}" y1="${yt}" x2="${cx}" y2="${yb}" stroke="#fff" stroke-opacity=".35" stroke-width="2"/>`;return wrap(o)};
+const tower=p=>{const hy=262,VL=[-560,hy],VR=[1040,hy],vz=-260,cx=p.cx||250,yb=hy+14,yt=22,b=bg(p,hy,cx),W=n=>n<p.fr?p.lit:p.dk,edge=(xb,y)=>cx+(xb-cx)*(y-vz)/(yb-vz);
+ const xlb=cx-125,xrb=cx+135,xlt=edge(xlb,yt),xrt=edge(xrb,yt),A=[xlb,lY(cx,yb,VL,xlb)],B=[cx,yb],C=[cx,yt],D=[xlt,lY(cx,yt,VL,xlt)],A2=[xrb,lY(cx,yb,VR,xrb)],D2=[xrt,lY(cx,yt,VR,xrt)];
+ let o=b.o+`<ellipse cx="90" cy="60" rx="70" ry="14" fill="#fff" opacity=".18"/><ellipse cx="400" cy="110" rx="60" ry="12" fill="#fff" opacity=".15"/><rect y="${hy}" width="480" height="40" fill="url(#${b.i}g)"/>`;
+ const F=face(A,B,C,D,4,16,p.w1,W)+face(B,A2,D2,C,4,16,p.w2,W)+`<line x1="${cx}" y1="${yt}" x2="${cx}" y2="${yb}" stroke="#fff" stroke-opacity=".4" stroke-width="2"/>`;
+ if(p.flip){const i=U();return wrap(`<defs>${gr(i,'#5a4033','#1d1410')}</defs><rect width="480" height="300" fill="url(#${i})"/><path d="M0 45H480M0 130H480M0 220H480M70 0V300M410 0V300" stroke="#8a6a48" stroke-width="3" opacity=".45"/>`+[['#f59e0b',30,120],['#dc2626',420,60],['#fde68a',100,215],['#f97316',360,225],['#b45309',440,150],['#fbbf24',20,40]].map(c=>`<rect x="${c[1]}" y="${c[2]}" width="22" height="10" rx="3" fill="${c[0]}"/>`).join('')+`<g transform="translate(0 300) scale(1 -1)">${F}</g>`)}
+ return wrap(o+F)};
+const rail=p=>{const hy=145,vx=215,b=bg(p,hy,vx),P=(f,x)=>[vx+(240+x-vx)*f,hy+155*f];
+ let o=b.o+`<path d="M0 ${hy}L60 ${hy-20}L140 ${hy-6}L230 ${hy-30}L330 ${hy-8}L420 ${hy-24}L480 ${hy-10}V${hy}Z" fill="${p.m}"/><rect y="${hy}" width="480" height="155" fill="url(#${b.i}g)"/><polygon points="${vx-1},${hy} ${vx+1},${hy} ${P(1,170)} ${P(1,-170)}" fill="#6b5a4a"/>`;
+ for(let k=1;k<=26;k++){const f=Math.pow(k/26,2.4);o+=`<polygon points="${[P(f,-120),P(f,120),P(f*1.05,120),P(f*1.05,-120)]}" fill="#3b2a1e"/>`}
+ o+=`<polygon points="${vx},${hy} ${P(1,-62)} ${P(1,-46)}" fill="#d6cfc4"/><polygon points="${vx},${hy} ${P(1,46)} ${P(1,62)}" fill="#d6cfc4"/>`;return wrap(o)};
+const box=p=>{const hy=150,VL=[-520,hy],VR=[1000,hy],b=bg(p,hy,360),cx=240,yt=120,yb=232,wl=cx-130,wr=cx+150,W=n=>n%2?'#00000030':'#ffffff22';
+ const A=[wl,lY(cx,yb,VL,wl)],B=[cx,yb],C=[cx,yt],D=[wl,lY(cx,yt,VL,wl)],A2=[wr,lY(cx,yb,VR,wr)],D2=[wr,lY(cx,yt,VR,wr)];
+ return wrap(b.o+`<rect y="${hy}" width="480" height="150" fill="url(#${b.i}g)"/><polygon points="${[A,B,A2,[A2[0]+40,A2[1]+16],[B[0],B[1]+34],[A[0]-30,A[1]+14]]}" fill="#000" opacity=".28"/>`+face(A,B,C,D,14,1,p.w1,W)+face(B,A2,D2,C,14,1,p.w2,W)+`<line x1="${cx}" y1="${yt}" x2="${cx}" y2="${yb}" stroke="#fff" stroke-opacity=".4" stroke-width="2"/>`)};
+const SCN={r1:()=>road({s:['#3b1a4a','#f97316'],g:['#3a2418','#1e1210'],sun:'#fbbf24',m:'#4a2326',r:'#2b2b2f',l:'#fde68a',vx:250}),
+c1:()=>corner({s:['#4c1d3d','#fb923c'],g:['#3b2a22','#1f1512'],sun:'#f59e0b',w1:'#9a5a3c',w2:'#5a2e22',lit:'#fde68a',dk:'#2a1612',far:'#3a1f2b',fr:3}),
+t1:()=>tower({s:['#60a5fa','#fed7aa'],g:['#8a8378','#4f4a42'],sun:'#fff1b8',w1:'#c9b8a8',w2:'#8f7f73',lit:'#e0f2fe',dk:'#3d4a55',fr:2}),
+k1:()=>corr({f:['#8a5a36','#4a2c18'],c:['#f5e6d0','#c9b79c'],w:'#d9c3a0',w2:'#b79b78',d:'#6b3f22',s2:'#8f7757'}),
+bx:()=>box({s:['#7c2d12','#fdba74'],g:['#a08060','#5a4630'],sun:'#fde68a',w1:'#b4531f',w2:'#7a3412'}),
+dn:()=>tower({flip:1,s:['#000','#000'],g:['#000','#000'],sun:'#000',w1:'#b98a74',w2:'#6b4a44',lit:'#fcd34d',dk:'#2a1a1a',fr:2}),
+rl:()=>rail({s:['#5b2a4a','#fdba74'],g:['#7a6a3a','#3f361e'],sun:'#fde68a',m:'#5a3a2a'})};
+const SC=SCN;
+function showVP(){const c=[['r1','#fbbf24','Perspectiva con 1 punto de fuga','Miras un espacio de frente: todas las líneas de profundidad van a un solo punto. Ej.: una carretera o un pasillo.'],['c1','#fb923c','Perspectiva con 2 puntos de fuga','Miras un objeto por una esquina: aparecen dos puntos en el horizonte. Ej.: un edificio en esquina.'],['t1','#f43f5e','Perspectiva con 3 puntos de fuga','Además de los dos laterales, las verticales también se juntan. Ej.: un rascacielos visto desde abajo.']];
+ $('#vpg').innerHTML=c.map(([k,col,n,t],j)=>`<div class="vc" style="--c:${col}"><div class="em">${j+1}</div>${SCN[k]()}<b>${n}</b><span>${t}</span></div>`).join('');sfx('fan');show('s-vp');window.scrollTo(0,0)}
+$('#goVP').onclick=()=>{show('s-game');load();window.scrollTo(0,0)};
+let AC,musOn=true,sfxOn=true,musT=null,stp=0;
+function ac(){if(!AC){try{AC=new(window.AudioContext||window.webkitAudioContext)()}catch(e){}}if(AC&&AC.state=='suspended')AC.resume();return AC}
+function tone(f,t,d,ty,v,f2){const a=AC,o=a.createOscillator(),g=a.createGain();o.type=ty;o.frequency.setValueAtTime(f,t);if(f2)o.frequency.exponentialRampToValueAtTime(f2,t+d);g.gain.setValueAtTime(.0001,t);g.gain.exponentialRampToValueAtTime(v,t+.02);g.gain.exponentialRampToValueAtTime(.0001,t+d);o.connect(g);g.connect(a.destination);o.start(t);o.stop(t+d+.05)}
+function sfx(k){if(!sfxOn)return;const a=ac();if(!a)return;const t=a.currentTime;
+ if(k=='click')tone(660,t,.07,'triangle',.1);
+ else if(k=='ok')[523,659,784,1047,1319].forEach((f,j)=>tone(f,t+j*.08,.22,'triangle',.18));
+ else if(k=='bad'){tone(330,t,.2,'square',.09,250);tone(247,t+.22,.45,'square',.09,120)}
+ else if(k=='fan')[523,659,784,659,784,1047].forEach((f,j)=>tone(f,t+j*.12,.3,'triangle',.18))}
+const MEL=[523,0,659,0,784,659,0,587,523,0,659,0,880,784,0,659,587,0,698,0,880,698,0,587,523,659,784,0,1047,784,659,0],BAS=[131,131,196,196,175,175,196,131];
+function musTick(){const a=AC;if(!a||!musOn)return;const t=a.currentTime+.05,m=MEL[stp%32];if(m)tone(m,t,.22,'triangle',.05);if(stp%4==0)tone(BAS[Math.floor(stp/4)%8],t,.9,'sine',.07);stp++}
+function startMus(){if(musT||!ac())return;musT=setInterval(musTick,250)}
+function stopMus(){clearInterval(musT);musT=null}
+function conf(){for(let n=0;n<14;n++){const e=document.createElement('div');e.textContent=rnd(['🎉','⭐','✨','💥','🔥']);e.style.cssText=`position:fixed;left:${Math.random()*100}vw;top:100vh;font-size:${20+Math.random()*20}px;transition:all 1.2s ease-out;pointer-events:none;z-index:9`;document.body.appendChild(e);requestAnimationFrame(()=>{e.style.top=(30+Math.random()*30)+'vh';e.style.opacity=0});setTimeout(()=>e.remove(),1300)}}
+const LV=['Nivel 1 · Vistas · Objetos simples','Nivel 1 · Vistas · Alturas y escalones','Nivel 1 · Vistas · Partes ocultas','Nivel 2 · Punto de fuga'];
+const OK=['✅ ¡Correcto! Tu visión espacial funciona mejor que un GPS. 🧭','✅ ¡Boom! Acertaste. El objeto está temblando. 💥','✅ ¡Excelente! Ya tienes ojos de dibujante técnico. 👀','✅ ¡Perfecto! Ni el objeto pudo esconderse de ti. 🕵️','🔥 ¡Estás on fire! Los planos te tienen miedo.','🧠 ¡Cerebro de arquitecto detectado!'];
+const NO=['❌ ¡Uy! Ese ángulo se escondió como el control remoto. 📺','❌ Tus ojos se fueron de paseo… ya los llamamos de vuelta. 🚶','❌ Plot twist: no era esa. El objeto se ríe, pero con cariño. 😂','❌ Fallaste, pero hasta Leonardo da Vinci borró líneas. ✏️','❌ Era una trampa… ¡y caíste con estilo! 😎','❌ Tu cerebro dijo "yo creo que sí" y el objeto dijo "nop". 🤷','❌ ¡Error épico desbloqueado! 🏅 Mira la pista y te lo cobras en la próxima.','❌ Casi. Parece que giramos el objeto de más. 🌀'];
+const rnd=a=>a[Math.floor(Math.random()*a.length)];
+function vox(h){const a=[];h.forEach((r,y)=>r.forEach((n,x)=>{for(let z=0;z<n;z++)a.push([x,y,z])}));return a}
+function proj(h,k){const D=h.length,W=h[0].length,H=Math.max(...h.flat()),m={};
+ vox(h).forEach(([x,y,z])=>{let u,r,d;
+  if(k=='front'){u=x;r=H-1-z;d=D-1-y}else if(k=='back'){u=W-1-x;r=H-1-z;d=y}
+  else if(k=='right'){u=D-1-y;r=H-1-z;d=W-1-x}else if(k=='left'){u=y;r=H-1-z;d=x}
+  else if(k=='top'){u=x;r=y;d=H-1-z}else{u=x;r=D-1-y;d=z}
+  const q=u+','+r;if(!m[q]||m[q].d>d)m[q]={u,r,d}});
+ const s=k=='right'||k=='left',t=k=='top'||k=='bottom';
+ return{cells:Object.values(m),c:s?D:W,r:t?D:H}}
+function svg2d(h,k){const p=proj(h,k),s=Math.min(40,170/Math.max(p.c,p.r)),w=p.c*s,hh=p.r*s;
+ let o=`<svg viewBox="-6 -6 ${w+12} ${hh+12}" width="${w+12}" height="190"><rect x="0" y="0" width="${w}" height="${hh}" fill="none" stroke="#ffffff30" stroke-dasharray="4"/>`;
+ p.cells.forEach(c=>o+=`<rect x="${c.u*s}" y="${c.r*s}" width="${s}" height="${s}" fill="hsl(28 90% ${Math.max(30,82-c.d*13)}%)" stroke="#2b0f0a" stroke-width="2"/>`);
+ return o+'</svg>'}
+function iso(h){const v=vox(h),set=new Set(v.map(a=>a.join())),c=22;
+ const P=(x,y,z)=>[(x-y)*c,(x+y)*c/2-z*c];let o='',a=1e9,b=-1e9,d=1e9,e=-1e9;
+ const poly=(pts,f)=>{pts=pts.map(q=>P(...q));pts.forEach(([X,Y])=>{a=Math.min(a,X);b=Math.max(b,X);d=Math.min(d,Y);e=Math.max(e,Y)});
+  o+=`<polygon points="${pts.map(q=>q.join()).join(' ')}" fill="${f}" stroke="#2b0f0a" stroke-width="1.5" stroke-linejoin="round"/>`};
+ v.sort((p,q)=>(p[0]+p[1]+p[2])-(q[0]+q[1]+q[2])).forEach(([x,y,z])=>{
+  if(!set.has([x,y,z+1].join()))poly([[x,y,z+1],[x+1,y,z+1],[x+1,y+1,z+1],[x,y+1,z+1]],'#fde047');
+  if(!set.has([x,y+1,z].join()))poly([[x,y+1,z],[x+1,y+1,z],[x+1,y+1,z+1],[x,y+1,z+1]],'#f97316');
+  if(!set.has([x+1,y,z].join()))poly([[x+1,y,z],[x+1,y+1,z],[x+1,y+1,z+1],[x+1,y,z+1]],'#b91c1c')});
+ return`<svg viewBox="${a-8} ${d-8} ${b-a+16} ${e-d+16}" height="190">${o}</svg>`}
+let name='',i=0,sc=0,sel=null,done=false,ans=[],ord=[];
+const show=id=>{document.querySelectorAll('.screen').forEach(s=>s.classList.toggle('on',s.id==id))};
+$('#go').onclick=()=>{const n=$('#name').value.trim();if(!n){$('#nerr').textContent='✏️ Escribe tu nombre para poder comenzar.';$('#name').focus();return}
+ name=n;$('#nerr').textContent='';$('#recapsvg').innerHTML=iso(IO);$('#vgrid').innerHTML=['front','back','right','left','top','bottom'].map(k=>`<div class="vc" style="--c:${CL[k]}"><div class="em">${EM[k]}</div><b>${V[k].n}</b><span>${IN[k]}</span>${svg2d(IO,k)}</div>`).join('');show('s-recap')};
+$('#name').onkeydown=e=>{if(e.key=='Enter')$('#go').click()};
+$('#go2').onclick=()=>{i=0;sc=0;ans=[];$('#sc').textContent=0;show('s-game');load()};
+function load(){const q=Q[i];done=false;sel=null;
+ $('#qn').textContent=`Pregunta ${i+1} de ${Q.length}`;$('#pb').style.width=(i/Q.length*100)+'%';
+ $('#lv').textContent=LV[q.s?3:Math.floor(i/5)];const vp=!!q.s;document.querySelector('.views').classList.toggle('one',vp);$('#iso').parentNode.style.display=vp?'none':'';
+ $('#qt').textContent=vp?'¿Cuántos puntos de fuga tiene esta imagen?':'¿Desde qué punto de vista estamos viendo este objeto?';$('#v2d').previousElementSibling.textContent=vp?'Observa hacia dónde se juntan las líneas 🔭':'Esto es lo que ves 👁️';
+ $('#iso').innerHTML=vp?'':iso(q.h);$('#v2d').innerHTML=vp?SCN[q.s]():svg2d(q.h,q.v);$('#arw').style.display='none';
+ ord=[...q.o].sort(()=>Math.random()-.5);
+ $('#opts').innerHTML=ord.map((k,j)=>`<button class="opt" data-k="${k}"><b>${'ABCD'[j]}</b>${V[k].n}</button>`).join('');
+ document.querySelectorAll('.opt').forEach(b=>b.onclick=()=>{if(done)return;sfx('click');sel=b.dataset.k;document.querySelectorAll('.opt').forEach(x=>x.classList.toggle('sel',x==b));$('#chk').disabled=false});
+ $('#chk').style.display='block';$('#chk').disabled=true;$('#fb').style.display='none';$('#nx').style.display='none';
+ $('#nx').textContent=i==Q.length-1?'Ver resultados':'Siguiente';
+ const g=$('#s-game');g.classList.remove('on');void g.offsetWidth;g.classList.add('on')}
+$('#chk').onclick=()=>{if(!sel||done)return;done=true;const q=Q[i],ok=sel==q.v;ans.push({q:i,sel,ok});sfx(ok?'ok':'bad');
+ document.querySelectorAll('.opt').forEach(b=>{b.disabled=true;b.classList.remove('sel');if(b.dataset.k==q.v)b.classList.add('good');else if(b.dataset.k==sel)b.classList.add('bad')});
+ if(ok){conf();sc+=10;$('#sc').textContent=sc;const s=$('#sc');s.classList.remove('bump');void s.offsetWidth;s.classList.add('bump')}
+ const A=$('#arw');A.textContent=V[q.v].a;A.style.display='block';
+ const f=$('#fb');f.className='fb '+(ok?'ok':'no');f.style.display='block';
+ f.innerHTML=`<div class="hd">${ok?rnd(OK)+(ok?' +10 puntos':''):rnd(NO)}</div>${ok?'Es':'La respuesta correcta es <b>'+V[q.v].n+'</b>. Es'} la <b>${V[q.v].n.toLowerCase()}</b> porque ${V[q.v].f}.<br>🔎 <b>Cómo reconocerla:</b> ${q.w}<br>📘 Se llama también: <b>${V[q.v].d.split(":")[0]}</b>`;
+ $('#chk').style.display='none';$('#nx').style.display='block';f.scrollIntoView({behavior:'smooth',block:'nearest'})};
+$('#nx').onclick=()=>{i++;if(i==N1){showVP();return}if(i<Q.length){load();window.scrollTo({top:0,behavior:'smooth'})}else end()};
+function end(){const n=ans.filter(a=>a.ok).length,m=Q.length,p=Math.round(n/m*100);
+ $('#pn').textContent=name;$('#fs').textContent=`${sc} / ${m*10} puntos`;$('#cc').textContent=n;$('#ci').textContent=m-n;$('#cp').textContent=p+' %';
+ $('#msg').textContent=p>=90?'🏆 ¡Excelente! Ya puedes mirar un objeto desde cualquier ángulo sin perderte.':p>=70?'😎 ¡Muy buen trabajo! Tu visión espacial está tomando forma.':p>=50?'👍 Buen trabajo. Con unas cuantas vistas más vas a dominarlo.':'🔧 Estamos construyendo esa visión espacial. Inténtalo nuevamente y verás cuánto mejoras.';
+ $('#pb').style.width='100%';saveScore({name,score:sc,max:m*10,correct:n,total:m,pct:p,ts:Date.now()});sfx('fan');show('s-end')}
+$('#again').onclick=()=>{i=0;sc=0;ans=[];$('#sc').textContent=0;show('s-game');load()};
+$('#rv').onclick=()=>{$('#revl').innerHTML=ans.map(a=>{const q=Q[a.q];return`<div class="rev ${a.ok?'':'x'}"><b>${a.q+1}.</b> ${a.ok?'✅':'❌'} Correcta: <b>${V[q.v].n}</b>${a.ok?'':` · Tu respuesta: ${V[a.sel].n}`}<br><small style="color:var(--mu)">${q.w}</small></div>`}).join('');show('s-rev')};
+$('#back').onclick=()=>show('s-end');
+$('#hero').innerHTML=iso([[1,1,1],[1,2,2],[1,2,3]]);
+$('#play').onclick=()=>{ac();if(musOn)startMus();sfx('click');show('s-start');$('#name').focus()};
+$('#hm').onclick=()=>show('s-home');
+const LSK='vistas_scores_v1';let DBH=null,lbFrom='s-home';
+function lsGet(){try{return JSON.parse(localStorage.getItem(LSK)||'[]')}catch(e){return[]}}
+function saveScore(e){try{localStorage.setItem(LSK,JSON.stringify(lsGet().concat(e).slice(-300)))}catch(x){}try{if(DBH)DBH.collection('scores').add(e).catch(()=>{})}catch(x){}}
+try{if(window.claude&&claude.use)claude.use('db').then(d=>{DBH=d}).catch(()=>{})}catch(e){}
+const esc=t=>String(t).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+async function showLB(from){lbFrom=from;show('s-lb');$('#lbt').innerHTML='<tr><td>Cargando…</td></tr>';let list=lsGet(),src='💾 Datos guardados en este dispositivo';
+ if(DBH){try{const sn=await DBH.collection('scores').orderBy('score','desc').limit(200).get();const r=sn.docs.map(d=>d.data());if(r.length){list=r;src='🌐 Todos los jugadores'}}catch(e){}}
+ const m={};list.forEach(e=>{const k=String(e.name||'').trim().toLowerCase();if(!k)return;const g=m[k]||(m[k]={name:e.name,best:0,pct:0,n:0});g.n++;if(e.score>g.best||(e.score==g.best&&e.pct>g.pct)){g.best=e.score;g.pct=e.pct}});
+ const rows=Object.entries(m).sort((a,b)=>b[1].best-a[1].best||b[1].pct-a[1].pct).slice(0,15),me=(name||'').trim().toLowerCase(),med=['🥇','🥈','🥉'];
+ $('#lbsrc').textContent=src;
+ $('#lbt').innerHTML=rows.length?'<tr><th>#</th><th>Jugador</th><th>Mejor puntaje</th><th>Acierto</th><th>Intentos</th></tr>'+rows.map(([k,g],j)=>`<tr class="${k==me?'me':''}"><td>${med[j]||j+1}</td><td>${esc(g.name)}</td><td>${g.best}</td><td>${g.pct} %</td><td>${g.n}</td></tr>`).join(''):'<tr><td>Aún no hay puntuaciones. ¡Sé el primero en jugar! 🚀</td></tr>'}
+$('#lbh').onclick=()=>{sfx('click');showLB('s-home')};$('#lbe').onclick=()=>{sfx('click');showLB('s-end')};$('#lbback').onclick=()=>show(lbFrom);
+document.addEventListener('pointerdown',()=>{ac();if(musOn)startMus()},{once:true});
+$('#bm').onclick=()=>{musOn=!musOn;$('#bm').classList.toggle('off',!musOn);$('#bm').textContent=musOn?'🎵':'🔇';if(musOn)startMus();else stopMus()};
+$('#bs').onclick=()=>{sfxOn=!sfxOn;$('#bs').classList.toggle('off',!sfxOn);$('#bs').textContent=sfxOn?'🔊':'🔈';sfx('click')};
+</script></body></html>
